@@ -128,14 +128,17 @@ export const defaults: Defaults = {
   },
   li: props => {
     const { children, checked } = props;
+
     let checkbox = null;
+
     if (checked !== null && checked !== undefined) {
       checkbox = (
         <Checkbox isChecked={checked} isReadOnly>
-          {children}
+          {children.slice(1)}
         </Checkbox>
       );
     }
+
     return (
       <ListItem
         {...getCoreProps(props)}
