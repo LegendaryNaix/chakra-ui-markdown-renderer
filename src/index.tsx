@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import deepmerge from 'deepmerge';
 import { Components } from 'react-markdown';
 import {
@@ -34,28 +34,31 @@ interface Defaults extends Components {
   heading?: Components['h1'];
 }
 
-export const defaults: Defaults = {
-  p: props => {
-    const { children } = props;
+export const defaults = {
+  p: ({ children }: { children: React.ReactNode }) => {
     return <Text mb={2}>{children}</Text>;
   },
-  em: props => {
-    const { children } = props;
+  em: ({ children }: { children: React.ReactNode }) => {
     return <Text as="em">{children}</Text>;
   },
-  blockquote: props => {
-    const { children } = props;
+  blockquote: ({ children }: { children: React.ReactNode }) => {
     return (
       <Code as="blockquote" p={2}>
         {children}
       </Code>
     );
   },
-  code: props => {
-    const { inline, children, className } = props;
-
+  code: ({
+    children,
+    inline,
+    className,
+  }: {
+    children: React.ReactNode;
+    inline: boolean;
+    className: string;
+  }) => {
     if (inline) {
-      return <Code p={2} children={children} />;
+      return <Code p={2}>{children}</Code>;
     }
 
     return (
@@ -65,24 +68,27 @@ export const defaults: Defaults = {
         display="block"
         w="full"
         p={2}
-        children={children}
-      />
+      >
+        {children}
+      </Code>
     );
   },
-  del: props => {
-    const { children } = props;
+  del: ({ children }: { children: React.ReactNode }) => {
     return <Text as="del">{children}</Text>;
   },
-  hr: props => {
+  hr: () => {
     return <Divider />;
   },
   a: Link,
   img: Image,
-  text: props => {
-    const { children } = props;
+  text: ({ children }: { children: React.ReactNode }) => {
     return <Text as="span">{children}</Text>;
   },
-  ul: props => {
+  ul: (props: {
+    children: React.ReactNode;
+    ordered: boolean;
+    depth: number;
+  }) => {
     const { ordered, children, depth } = props;
     const attrs = getCoreProps(props);
     let Element = UnorderedList;
@@ -104,7 +110,11 @@ export const defaults: Defaults = {
       </Element>
     );
   },
-  ol: props => {
+  ol: (props: {
+    children: React.ReactNode;
+    ordered: boolean;
+    depth: number;
+  }) => {
     const { ordered, children, depth } = props;
     const attrs = getCoreProps(props);
     let Element = UnorderedList;
@@ -126,15 +136,15 @@ export const defaults: Defaults = {
       </Element>
     );
   },
-  li: props => {
+  li: (props: { children: React.ReactNode; checked: boolean }) => {
     const { children, checked } = props;
-
     let checkbox = null;
 
     if (checked !== null && checked !== undefined) {
       checkbox = (
         <Checkbox isChecked={checked} isReadOnly>
-          {children.slice(1)}
+          {/* wtf why did you slice the children */}
+          {children}
         </Checkbox>
       );
     }
@@ -148,7 +158,7 @@ export const defaults: Defaults = {
       </ListItem>
     );
   },
-  heading: props => {
+  heading: (props: { children: React.ReactNode; level: number }) => {
     const { level, children } = props;
     const sizes = ['2xl', 'xl', 'lg', 'md', 'sm', 'xs'];
     return (
@@ -162,17 +172,17 @@ export const defaults: Defaults = {
       </Heading>
     );
   },
-  pre: props => {
+  pre: (props: { children: React.ReactNode }) => {
     const { children } = props;
     return <chakra.pre {...getCoreProps(props)}>{children}</chakra.pre>;
   },
   table: Table,
   thead: Thead,
   tbody: Tbody,
-  tr: props => <Tr>{props.children}</Tr>,
-  td: props => <Td>{props.children}</Td>,
-  th: props => <Th>{props.children}</Th>,
-};
+  tr: ({ children }: { children: React.ReactNode }) => <Tr>{children}</Tr>,
+  td: ({ children }: { children: React.ReactNode }) => <Td>{children}</Td>,
+  th: ({ children }: { children: React.ReactNode }) => <Th>{children}</Th>,
+} as unknown as Defaults;
 
 function ChakraUIRenderer(theme?: Defaults, merge = true): Components {
   const elements = {
