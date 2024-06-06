@@ -18,12 +18,13 @@ export default [
       external(),
       babel({
         exclude: 'node_modules/**',
+        babelHelpers: 'runtime',
       }),
       typescript({
         rollupCommonJSResolveHack: false,
         clean: true,
       }),
     ],
-    external: Object.keys(pkg.peerDependencies || {}),
+    external: Object.keys(pkg.dependencies || {}),
   },
 ];
